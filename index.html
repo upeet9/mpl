@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MpLite Gen @narikcuan</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- JSZip (Wajib untuk export ZIP) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-red-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black text-red-600 tracking-tighter uppercase flex items-center gap-2">
+                    <i data-lucide="zap" class="w-6 h-6"></i> MpLite Gen
+                </h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase ml-8">@narikcuan • Marketplace Engine</p>
+            </div>
+            <button onclick="window.location.reload()" class="text-xs font-bold text-red-500 hover:text-red-700 uppercase tracking-wider border border-red-200 px-3 py-1 rounded-full hover:bg-red-50 transition">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <form id="app-form" onsubmit="return false;">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- KOLOM KIRI: INPUT DATA & SETTING -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- 1. DATA METADATA (CSV) -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-red-600">
+                        <h2 class="text-sm font-black text-gray-700 uppercase tracking-widest mb-5 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-red-500"></i> 1. Data Produk (CSV)
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <!-- INPUT JUDUL -->
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Judul Utama (Auto-Spintax)</label>
+                                <input type="text" id="metaTitle" placeholder="Cth: Sepatu Sneakers Pria" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition font-medium">
+                                <p class="text-[9px] text-gray-400 mt-1 italic">*Judul akan diacak otomatis (Jual, Promo, COD, dll)</p>
+                            </div>
+
+                            <!-- INPUT HARGA & KONDISI -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Harga (Rp)</label>
+                                    <input type="number" id="metaPrice" placeholder="150000" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 transition">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Kondisi</label>
+                                    <select id="metaCondition" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 transition">
+                                        <option>Baru</option>
+                                        <option>Bekas - Seperti Baru</option>
+                                        <option>Bekas - Baik</option>
+                                        <option>Bekas - Cukup</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Kategori Marketplace (Format FB)</label>
+                                <select id="metaCategory" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 transition">
+                                    <option>Peralatan</option>
+                                    <option>Mebel</option>
+                                    <option>Peralatan rumah tangga</option>
+                                    <option>Kebun</option>
+                                    <option>Perkakas</option>
+                                    <option>Video game</option>
+                                    <option>Buku, film & musik</option>
+                                    <option>Tas & koper</option>
+                                    <option>Pakaian & sepatu wanita</option>
+                                    <option>Pakaian & sepatu pria</option>
+                                    <option>Perhiasan & aksesoris</option>
+                                    <option>Kesehatan & kecantikan</option>
+                                    <option>Kebutuhan hewan peliharaan</option>
+                                    <option>Bayi & anak-anak</option>
+                                    <option>Mainan & game</option>
+                                    <option>Elektronik & komputer</option>
+                                    <option>Telepon seluler</option>
+                                    <option>Sepeda</option>
+                                    <option>Seni & kerajinan</option>
+                                    <option>Olahraga & outdoor</option>
+                                    <option>Komponen otomotif</option>
+                                    <option>Alat musik</option>
+                                    <option>Barang antik & koleksi</option>
+                                    <option>Cuci gudang</option>
+                                    <option>Lain-lain</option>
+                                </select>
+                            </div>
+
+                            <!-- INPUT LABEL (DITAMBAHKAN KEMBALI) -->
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Label Produk (Tags)</label>
+                                <input type="text" id="metaLabel" placeholder="Cth: Promo, Murah, Viral" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 transition">
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Deskripsi</label>
+                                <textarea id="metaDesc" rows="2" placeholder="Deskripsi singkat produk..." class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-red-500 transition resize-none"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SETTING VISUAL -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-sm font-black text-gray-700 uppercase tracking-widest mb-5 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-red-500"></i> 2. Setting Tampilan
+                        </h2>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Teks Watermark / Label</label>
+                                <input type="text" id="watermarkText" placeholder="DISKON 50%" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold uppercase focus:outline-none focus:border-red-500 transition">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>ZOOM PRODUK</span>
+                                        <span id="val-scale" class="text-red-600">80%</span>
+                                    </div>
+                                    <input type="range" id="scale" min="10" max="100" value="80" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>BLUR LATAR</span>
+                                        <span id="val-bgBlur" class="text-red-600">0px</span>
+                                    </div>
+                                    <input type="range" id="bgBlur" min="0" max="20" value="0" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>UKURAN TEKS</span>
+                                        <span id="val-textScale" class="text-red-600">40px</span>
+                                    </div>
+                                    <input type="range" id="textScale" min="10" max="100" value="40" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>UKURAN PNG</span>
+                                        <span id="val-pngScale" class="text-red-600">25%</span>
+                                    </div>
+                                    <input type="range" id="pngScale" min="5" max="100" value="25" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                </div>
+                            </div>
+
+                            <!-- Tombol Generate Background -->
+                            <div class="pt-2">
+                                <button id="btn-refresh" class="w-full bg-gray-800 hover:bg-black text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg transition flex items-center justify-center gap-2">
+                                    <i data-lucide="image-plus" class="w-4 h-4"></i>
+                                    <span>Ganti Background Online</span>
+                                </button>
+                                <p class="text-[9px] text-gray-400 text-center mt-2">*Klik untuk mengambil background acak dari internet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- KOLOM KANAN: UPLOAD & PREVIEW -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- 3. UPLOAD AREA -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Main Image -->
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                            <div id="dropZoneMain" class="h-36 bg-white border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center hover:border-red-500 hover:bg-red-50 transition-all overflow-hidden relative">
+                                <div class="text-center z-10">
+                                    <i data-lucide="image" class="w-6 h-6 text-gray-400 mb-2 mx-auto"></i>
+                                    <span class="text-[10px] font-black uppercase text-gray-500 block">Upload Produk Utama</span>
+                                    <span class="text-[9px] text-gray-400">(Wajib)</span>
+                                </div>
+                                <img id="previewSource" class="absolute inset-0 w-full h-full object-contain p-2 hidden bg-white z-20">
+                            </div>
+                            <input type="file" id="fileInput" class="hidden" accept="image/*">
+                        </div>
+
+                        <!-- Bulk PNG -->
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('pngInput').click()">
+                            <div id="dropZonePng" class="h-36 bg-white border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all">
+                                <i data-lucide="layers" class="w-6 h-6 text-gray-400 mb-2"></i>
+                                <span class="text-[10px] font-black uppercase text-gray-500 block">Upload Label PNG</span>
+                                <span class="text-[9px] text-gray-400">(Opsional / Banyak File)</span>
+                                <div id="pngCountBadge" class="hidden mt-2 px-2 py-1 bg-blue-100 text-blue-600 rounded text-[9px] font-bold">0 File</div>
+                            </div>
+                            <input type="file" id="pngInput" class="hidden" multiple accept="image/png">
+                        </div>
+                    </div>
+
+                    <!-- 4. LIVE PREVIEW (2 Baris) -->
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="monitor" class="w-4 h-4 text-red-500"></i> Live Preview
+                            </h2>
+                            <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">4 Variasi Contoh</span>
+                        </div>
+
+                        <!-- Grid 2 Kolom agar besar -->
+                        <div id="previewContainer" class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 flex flex-col items-center justify-center text-gray-300 h-48 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50">
+                                <i data-lucide="image" class="w-8 h-8 mb-2 opacity-50"></i>
+                                <span class="text-[10px] font-bold uppercase">Upload Produk & Klik Ganti Background</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. DOWNLOAD ACTION -->
+                    <div class="bg-gray-900 text-white p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-t-4 border-red-600">
+                        <div class="flex items-center gap-4 w-full md:w-auto">
+                            <div class="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-600/30 shrink-0">
+                                <i data-lucide="package" class="w-7 h-7 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm uppercase tracking-wide">Download Paket</h3>
+                                <p class="text-[10px] text-gray-400">Gambar + CSV Siap Upload</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                             <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Jumlah</label>
+                                <input type="number" id="batchSize" value="20" class="bg-gray-800 border border-gray-700 text-white text-center text-sm font-bold rounded-lg w-20 py-3 focus:outline-none focus:border-red-500">
+                            </div>
+                            <button id="btn-export" class="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>UNDUH .ZIP</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div id="progressContainer" class="hidden bg-white p-4 rounded-xl border border-gray-200 shadow-lg animate-pulse">
+                         <div class="flex justify-between text-[10px] font-black text-red-600 mb-2">
+                            <span id="progressText">SEDANG MEMPROSES GAMBAR...</span>
+                            <span id="progressPercent">0%</span>
+                         </div>
+                         <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+                            <div id="progressBar" class="bg-gradient-to-r from-red-600 to-orange-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                         </div>
+                         <p class="text-[9px] text-gray-400 text-center mt-2 italic">Mohon tunggu, jangan tutup halaman ini.</p>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+        <footer class="mt-12 text-center border-t border-gray-200 pt-8 pb-10">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                MpLite Gen &copy; 2024 • Ringan & Cepat • @narikcuan
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Hidden Canvas -->
+    <canvas id="renderCanvas" class="hidden"></canvas>
+
+    <script>
+        // --- KONFIGURASI UTAMA ---
+        const state = {
+            sourceImage: null,
+            labelPngs: [],
+            bgImages: [], // Menyimpan gambar background online
+            isProcessing: false
+        };
+
+        const canvas = document.getElementById('renderCanvas');
+        const ctx = canvas.getContext('2d');
+        const RENDER_SIZE = 1000;
+        
+        // Referensi Elemen DOM
+        const els = {
+            scale: document.getElementById('scale'),
+            bgBlur: document.getElementById('bgBlur'),
+            textScale: document.getElementById('textScale'),
+            pngScale: document.getElementById('pngScale'),
+            watermarkText: document.getElementById('watermarkText'),
+            fileInput: document.getElementById('fileInput'),
+            pngInput: document.getElementById('pngInput'),
+            previewContainer: document.getElementById('previewContainer'),
+            previewSource: document.getElementById('previewSource'),
+            pngCountBadge: document.getElementById('pngCountBadge'),
+            batchSize: document.getElementById('batchSize'),
+            btnExport: document.getElementById('btn-export'),
+            btnRefresh: document.getElementById('btn-refresh'),
+            
+            // Labels
+            lScale: document.getElementById('val-scale'),
+            lBlur: document.getElementById('val-bgBlur'), 
+            lTextScale: document.getElementById('val-textScale'),
+            lPngScale: document.getElementById('val-pngScale'),
+            
+            // Progress
+            progressContainer: document.getElementById('progressContainer'),
+            progressBar: document.getElementById('progressBar'),
+            progressPercent: document.getElementById('progressPercent'),
+            progressText: document.getElementById('progressText')
+        };
+
+        const FONTS = ['Arial', 'Verdana', 'Georgia', 'Impact', 'Courier New', 'Tahoma', 'Trebuchet MS'];
+        const POSITIONS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        
+        // Spintax Sederhana
+        const SEO_PREFIXES = ["Jual", "Promo", "Ready", "COD", "Termurah", "Viral", "Diskon", "Spesial", "Terbaru", "Grosir", "Cuci Gudang", "Murah Lebay"];
+        const SEO_SUFFIXES = ["Original", "Terbaik", "Berkualitas", "Garansi", "Murah", "Import", "Premium", "Terbatas", "Asli", "Lengkap", "Terlaris", "Official"];
+
+        // --- FUNGSI HELPER ---
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) color += letters[Math.floor(Math.random() * 16)];
+            return color;
+        }
+
+        function getContrastColor(hex) {
+            hex = hex.replace("#", "");
+            const r = parseInt(hex.substr(0,2),16);
+            const g = parseInt(hex.substr(2,2),16);
+            const b = parseInt(hex.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return (yiq >= 128) ? '#000000' : '#FFFFFF';
+        }
+
+        // --- LOGIKA ANTI-TABRAKAN ---
+        function getUniquePositions() {
+            const p1 = POSITIONS[Math.floor(Math.random() * POSITIONS.length)];
+            const remaining = POSITIONS.filter(p => p !== p1);
+            const p2 = remaining[Math.floor(Math.random() * remaining.length)];
+            return { pos1: p1, pos2: p2 };
+        }
+
+        // --- EVENT LISTENERS ---
+
+        ['scale', 'bgBlur', 'textScale', 'pngScale'].forEach(id => {
+            els[id].addEventListener('input', (e) => {
+                const val = e.target.value;
+                const suffix = id === 'bgBlur' || id === 'textScale' ? 'px' : '%';
+                document.getElementById(`val-${id}`).innerText = val + suffix;
+                renderPreviews(false); 
+            });
+        });
+
+        els.watermarkText.addEventListener('input', () => renderPreviews(false));
+        
+        // Tombol GANTI BACKGROUND
+        els.btnRefresh.addEventListener('click', async () => {
+            if(!state.sourceImage) return;
+            const btnHtml = els.btnRefresh.innerHTML;
+            els.btnRefresh.innerHTML = `<span class="loader mr-2"></span> LOADING...`;
+            els.btnRefresh.disabled = true;
+            
+            await loadBackgrounds(); 
+            renderPreviews(false);
+            
+            els.btnRefresh.innerHTML = btnHtml;
+            els.btnRefresh.disabled = false;
+        });
+
+        // Upload Gambar
+        els.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = async () => {
+                        state.sourceImage = img;
+                        els.previewSource.src = ev.target.result;
+                        els.previewSource.classList.remove('hidden');
+                        await loadBackgrounds();
+                        renderPreviews(false);
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Upload Bulk PNG
+        els.pngInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                state.labelPngs = [];
+                let loaded = 0;
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            state.labelPngs.push(img);
+                            loaded++;
+                            if (loaded === files.length) {
+                                els.pngCountBadge.innerText = `${files.length} File`;
+                                els.pngCountBadge.classList.remove('hidden');
+                                renderPreviews(false);
+                            }
+                        };
+                        img.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        // --- BACKGROUND ONLINE ---
+        async function loadBackgrounds() {
+            state.bgImages = [];
+            const promises = [];
+            for(let i=0; i<4; i++) {
+                promises.push(new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    const seed = Date.now() + i;
+                    img.src = `https://picsum.photos/seed/${seed}/500/500`;
+                    img.onload = () => resolve(img);
+                    img.onerror = () => resolve(null); 
+                }));
+            }
+            state.bgImages = await Promise.all(promises);
+        }
+
+        // --- RENDER PREVIEW ---
+        function renderPreviews(fetchNewBg = false) {
+            if (!state.sourceImage) return;
+            els.previewContainer.innerHTML = ''; 
+
+            for (let i = 0; i < 4; i++) {
+                const pCanvas = document.createElement('canvas');
+                pCanvas.width = 500; 
+                pCanvas.height = 500;
+                pCanvas.className = "w-full h-auto object-cover rounded-2xl shadow-md border border-gray-200";
+                
+                drawToCanvas(pCanvas, i, 500, true);
+                
+                const div = document.createElement('div');
+                div.className = "relative group overflow-hidden rounded-2xl";
+                div.appendChild(pCanvas);
+                els.previewContainer.appendChild(div);
+            }
+        }
+
+        // --- FUNGSI DRAW INTI ---
+        async function drawToCanvas(targetCanvas, index, size, isPreview, customBg = null) {
+            const ctx2 = targetCanvas.getContext('2d');
+            
+            // --- 1. BACKGROUND LAYER ---
+            
+            // Terapkan filter blur JIKA ada nilainya
+            const blurVal = parseInt(els.bgBlur.value);
+            if (blurVal > 0) {
+                ctx2.filter = `blur(${blurVal}px)`; 
+            }
+
+            // PRIORITASKAN CUSTOM BACKGROUND (SAAT EXPORT)
+            let bgImageToDraw = null;
+            if (customBg) {
+                bgImageToDraw = customBg;
+            } else if (isPreview && state.bgImages[index]) {
+                bgImageToDraw = state.bgImages[index];
+            }
+
+            if (bgImageToDraw) {
+                // Gambar dilebihkan ukurannya agar blur aman
+                ctx2.drawImage(bgImageToDraw, -20, -20, size + 40, size + 40);
+            } else {
+                // Fallback gradient JIKA tidak ada gambar sama sekali
+                const grd = ctx2.createLinearGradient(0, 0, size, size);
+                const col1 = getRandomColor();
+                const col2 = getRandomColor();
+                grd.addColorStop(0, col1);
+                grd.addColorStop(1, col2);
+                ctx2.fillStyle = grd;
+                ctx2.fillRect(-20, -20, size + 40, size + 40);
+            }
+
+            // PENTING: Matikan filter blur agar produk & teks TIDAK IKUT buram
+            ctx2.filter = 'none'; 
+
+            // --- 2. GAMBAR PRODUK ---
+            const scaleVal = parseInt(els.scale.value) / 100;
+            let pW, pH;
+            
+            if (scaleVal === 1) { // Cover Mode
+                const ratio = Math.max(size / state.sourceImage.width, size / state.sourceImage.height);
+                pW = state.sourceImage.width * ratio;
+                pH = state.sourceImage.height * ratio;
+                ctx2.drawImage(state.sourceImage, (size - pW)/2, (size - pH)/2, pW, pH);
+            } else { // Contain Mode
+                const ratio = Math.min((size * scaleVal) / state.sourceImage.width, (size * scaleVal) / state.sourceImage.height);
+                pW = state.sourceImage.width * ratio;
+                pH = state.sourceImage.height * ratio;
+                
+                ctx2.shadowColor = "rgba(0,0,0,0.4)";
+                ctx2.shadowBlur = 25;
+                ctx2.shadowOffsetY = 10;
+                ctx2.drawImage(state.sourceImage, (size - pW) / 2, (size - pH) / 2, pW, pH);
+                ctx2.shadowBlur = 0;
+                ctx2.shadowOffsetY = 0;
+            }
+
+            // --- 3. LOGIKA POSISI (ANTI-TABRAKAN) ---
+            const rand = Math.random(); 
+            const { pos1, pos2 } = getUniquePositions();
+            
+            const isTextFirst = rand > 0.5;
+            const textPos = isTextFirst ? pos1 : pos2;
+            const pngPos = isTextFirst ? pos2 : pos1;
+            
+            // --- 4. WATERMARK TEXT ---
+            const wText = els.watermarkText.value;
+            if (wText) {
+                const bgCol = getRandomColor();
+                const txtCol = getContrastColor(bgCol);
+                const tScaleVal = parseInt(els.textScale.value);
+                const fontSize = (tScaleVal * 1.5) * (size / 1000); 
+                const fontName = FONTS[Math.floor(Math.random() * FONTS.length)];
+                
+                ctx2.font = `900 ${fontSize}px ${fontName}`;
+                ctx2.textBaseline = "middle";
+                const metrics = ctx2.measureText(wText.toUpperCase());
+                const paddingX = 25 * (size/1000);
+                const paddingY = 15 * (size/1000);
+                const boxW = metrics.width + (paddingX * 2);
+                const boxH = fontSize * 1.6;
+                
+                const coords = getCoords(textPos, size, size, boxW, boxH);
+                
+                ctx2.fillStyle = bgCol;
+                ctx2.fillRect(coords.x, coords.y, boxW, boxH);
+                
+                ctx2.fillStyle = txtCol;
+                ctx2.fillText(wText.toUpperCase(), coords.x + paddingX, coords.y + (boxH/2));
+            }
+
+            // --- 5. LABEL PNG ---
+            if (state.labelPngs.length > 0) {
+                const labelImg = state.labelPngs[index % state.labelPngs.length];
+                const pngScaleVal = parseInt(els.pngScale.value) / 100;
+                const lW = size * pngScaleVal;
+                const lH = labelImg.height * (lW / labelImg.width);
+                
+                const coords = getCoords(pngPos, size, size, lW, lH);
+                ctx2.shadowColor = "rgba(0,0,0,0.3)";
+                ctx2.shadowBlur = 10;
+                ctx2.drawImage(labelImg, coords.x, coords.y, lW, lH);
+                ctx2.shadowBlur = 0;
+            }
+        }
+
+        function getCoords(pos, cw, ch, ew, eh) {
+            const gap = 0; 
+            switch(pos) {
+                case 'top-left': return { x: gap, y: gap };
+                case 'top-right': return { x: cw - ew - gap, y: gap };
+                case 'bottom-left': return { x: gap, y: ch - eh - gap };
+                case 'bottom-right': return { x: cw - ew - gap, y: ch - eh - gap };
+                default: return { x: 0, y: 0 };
+            }
+        }
+
+        function generateSEOTitle(base, idx) {
+            if (!base) return `Produk Tanpa Judul ${idx}`;
+            const prefix = SEO_PREFIXES[idx % SEO_PREFIXES.length];
+            const suffix = SEO_SUFFIXES[idx % SEO_SUFFIXES.length];
+            const uid = `#${Math.floor(1000 + Math.random() * 9000)}`;
+            
+            const pat = idx % 4;
+            let res = base;
+            if (pat === 0) res = `${prefix} ${base}`;
+            else if (pat === 1) res = `${base} ${suffix}`;
+            else if (pat === 2) res = `${prefix} ${base} ${suffix}`;
+            
+            return `${res} ${uid}`;
+        }
+
+        // --- EXPORT FUNCTION (PERBAIKAN BACKGROUND REAL) ---
+        els.btnExport.addEventListener('click', async () => {
+            if (!state.sourceImage) {
+                alert("Upload gambar produk dulu bos!");
+                return;
+            }
+            if (state.isProcessing) return;
+
+            state.isProcessing = true;
+            els.progressContainer.classList.remove('hidden');
+            const batchSize = parseInt(els.batchSize.value) || 20;
+            const zip = new JSZip();
+            
+            let csvContent = "Judul,Nama_Gambar,Harga,Kategori,Kondisi,Label,Deskripsi\n";
+            const mTitle = document.getElementById('metaTitle').value;
+            const mPrice = document.getElementById('metaPrice').value;
+            const mCat = document.getElementById('metaCategory').value;
+            const mCond = document.getElementById('metaCondition').value;
+            const mDesc = document.getElementById('metaDesc').value;
+            const mLabel = document.getElementById('metaLabel').value || "PROMO"; // FIXED: Ambil Label
+
+            for (let i = 0; i < batchSize; i++) {
+                // Update UI Text
+                els.progressText.innerText = `DOWNLOAD BACKGROUND & RENDER ${i+1}/${batchSize}...`;
+
+                canvas.width = RENDER_SIZE;
+                canvas.height = RENDER_SIZE;
+                
+                // 1. FETCH BACKGROUND BARU (AGAR SAMA DENGAN PREVIEW)
+                const seed = Date.now() + i;
+                const bgUrl = `https://picsum.photos/seed/${seed}/1000/1000`; // Ukuran besar untuk export
+                const bgImg = await new Promise(resolve => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => resolve(img);
+                    img.onerror = () => resolve(null); // Fallback ke gradient kalau gagal
+                    img.src = bgUrl;
+                });
+
+                // 2. DRAW DENGAN BACKGROUND KHUSUS
+                await drawToCanvas(canvas, i, RENDER_SIZE, false, bgImg);
+                
+                const filename = `MP_GEN_${i+1}_${Date.now()}.jpg`;
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.9));
+                zip.file(filename, blob);
+                
+                const finalTitle = generateSEOTitle(mTitle, i);
+                const row = [
+                    `"${finalTitle.replace(/"/g, '""')}"`,
+                    `"${filename}"`,
+                    `"${mPrice}"`,
+                    `"${mCat}"`,
+                    `"${mCond}"`,
+                    `"${mLabel.replace(/"/g, '""')}"`, // FIXED: Gunakan Label
+                    `"${mDesc.replace(/"/g, '""')}"`
+                ].join(",");
+                csvContent += row + "\n";
+
+                const pct = Math.round(((i + 1) / batchSize) * 100);
+                els.progressBar.style.width = `${pct}%`;
+                els.progressPercent.innerText = `${pct}%`;
+                
+                // Jeda sedikit biar browser gak freeze saat download banyak
+                await new Promise(r => setTimeout(r, 100));
+            }
+
+            zip.file("data_upload_marketplace.csv", csvContent);
+            const content = await zip.generateAsync({type:"blob"});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            
+            // Format Nama ZIP
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const timestamp = `${pad(now.getDate())}${pad(now.getMonth()+1)}${now.getFullYear()}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+            let safeTitle = mTitle.trim().replace(/[^a-zA-Z0-9\s-_]/g, '').replace(/\s+/g, '_');
+            if (!safeTitle) safeTitle = "MpLite_Pack";
+            
+            link.download = `${safeTitle}_${timestamp}.zip`;
+            link.click();
+            
+            state.isProcessing = false;
+            els.progressContainer.classList.add('hidden');
+            els.progressBar.style.width = '0%';
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
