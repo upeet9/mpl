@@ -3,79 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPL Tools & Updates</title>
+    <title>Portal MPL</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #0F172A;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            /* Background gradient halus */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
         }
+
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 3rem;
         }
-        /* Layout 2 Kolom untuk Cards */
-        .card-container {
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            /* Text gradient */
+            background: linear-gradient(to right, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .version-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 1.5rem;
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
         }
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card h2 {
-            margin-top: 0;
-            color: #0056b3;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #0056b3;
-            color: white;
+
+        .version-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 2rem;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover {
-            background-color: #004494;
+
+        /* Efek glow saat di-hover */
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .version-card:hover::before {
+            left: 100%;
+        }
+
+        .version-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+        }
+
+        .version-badge {
+            display: inline-block;
+            background-color: rgba(79, 70, 229, 0.2);
+            color: #818CF8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            align-self: flex-start;
+        }
+
+        .version-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .version-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .action-text {
+            color: #818CF8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            transition: gap 0.3s ease;
+        }
+
+        .version-card:hover .action-text {
+            gap: 0.75rem; /* Panah bergerak saat hover */
+        }
+
+        /* Responsif untuk HP */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 2rem; }
+            .version-grid { grid-template-columns: 1fr; }
+            body { padding: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>MPL Access Portal</h1>
-        <p>Pilih versi tools yang ingin diakses:</p>
+        <h1>Portal Akses</h1>
+        <p>Pilih versi tools yang ingin Anda gunakan</p>
     </div>
 
-    <div class="card-container">
-        <div class="card">
+    <div class="version-grid">
+        <!-- Link ke Versi 1 -->
+        <a href="/v1" class="version-card">
+            <span class="version-badge">Stabil</span>
             <h2>Versi 1</h2>
-            <p>Akses stabil untuk fitur dasar dan posting reguler.</p>
-            <a href="/v1" class="btn">Buka V1</a>
-        </div>
+            <p>Akses ke fitur dasar yang sudah teruji. Cocok untuk penggunaan reguler.</p>
+            <div class="action-text">
+                Akses Sekarang <span>&rarr;</span>
+            </div>
+        </a>
 
-        <div class="card">
+        <!-- Link ke Versi 2 -->
+        <a href="/v2" class="version-card">
+            <span class="version-badge" style="color: #34D399; background: rgba(52, 211, 153, 0.2);">Terbaru</span>
             <h2>Versi 2</h2>
-            <p>Update terbaru dengan GUI baru dan optimasi bypass.</p>
-            <a href="/v2" class="btn">Buka V2</a>
-        </div>
+            <p>Update dengan peningkatan performa dan tampilan antar muka baru.</p>
+            <div class="action-text" style="color: #34D399;">
+                Akses Sekarang <span style="color: #34D399;">&rarr;</span>
+            </div>
+        </a>
+        
+        <!-- Contoh jika ada Versi 3 nantinya -->
+        <!--
+        <a href="/v3" class="version-card">
+            <span class="version-badge" style="color: #FBBF24; background: rgba(251, 191, 36, 0.2);">Beta</span>
+            <h2>Versi 3</h2>
+            <p>Versi uji coba fitur eksperimental.</p>
+            <div class="action-text" style="color: #FBBF24;">
+                Akses Sekarang <span style="color: #FBBF24;">&rarr;</span>
+            </div>
+        </a>
+        -->
     </div>
 
 </body>
