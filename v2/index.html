@@ -941,6 +941,21 @@
             els.btnExport.classList.add('opacity-75', 'cursor-not-allowed');
             
             try {
+                // 1. MINTA IZIN PILIH FOLDER (HANYA 1X DI AWAL)
+                let dirHandle = null;
+                try {
+                    // Memicu pop-up untuk memilih folder tujuan
+                    dirHandle = await window.showDirectoryPicker({
+                        id: 'mplite_export_folder',
+                        mode: 'readwrite'
+                    });
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        throw new Error("Proses dibatalkan: Anda tidak memilih folder penyimpanan.");
+                    }
+                    console.warn("Fitur pilih folder otomatis tidak didukung browser ini. Beralih ke download manual.");
+                }
+
                 const batchSize = parseInt(els.batchSize.value) || 20;
                 const mCat = document.getElementById('metaCategory').value;
                 const mCond = document.getElementById('metaCondition').value;
@@ -953,16 +968,13 @@
                 // Loop untuk setiap Judul
                 for (let t = 0; t < titles.length; t++) {
                     const baseTitle = titles[t];
-                    
-                    // BUAT ZIP BARU PER JUDUL
                     const zip = new JSZip();
-                    // BUAT CSV BARU PER JUDUL
+                    
+                    // BOM \uFEFF ditambahkan di sini agar kebal bug fancy text & Emoji!
                     let csvContent = "\uFEFFJudul,Nama_Gambar,Harga,Kategori,Kondisi,Label,Deskripsi\n";
                     
-                    // Tentukan gambar pasangannya (jika 1 gambar, pakai gambar 0 terus. Jika banyak, pakai sesuai urutan)
                     const currentImgObj = state.sourceImages.length === 1 ? state.sourceImages[0].img : state.sourceImages[t].img;
 
-                    // Loop BatchSize per pasang Judul & Gambar
                     for (let i = 0; i < batchSize; i++) {
                         currentRender++;
                         els.progressText.innerText = `MERENDER: JUDUL ${t+1} | BATCH ${i+1}/${batchSize} ...`;
@@ -970,7 +982,6 @@
                         canvas.width = RENDER_SIZE;
                         canvas.height = RENDER_SIZE;
                         
-                        // Fetch Background Baru (Resolusi Besar mengikuti RENDER_SIZE)
                         const seed = Date.now() + i + t;
                         const bgUrl = `https://picsum.photos/seed/${seed}/${RENDER_SIZE}/${RENDER_SIZE}`; 
                         
@@ -980,21 +991,19 @@
                                 const img = new Image();
                                 img.crossOrigin = "anonymous";
                                 img.onload = () => resolve(img);
-                                img.onerror = () => resolve(null); // Fallback jika gagal meload online
+                                img.onerror = () => resolve(null); 
                                 img.src = bgUrl;
                             });
                         } catch (e) {
-                            console.warn("Gagal fetch background online, lanjut menggunakan gradient.");
+                            console.warn("Gagal fetch background online.");
                         }
 
-                        // Proses Draw
                         await drawToCanvas(canvas, currentRender, RENDER_SIZE, bgImg, currentImgObj);
                         
                         const filename = `MPG_T${t+1}_B${i+1}_${Date.now()}.jpg`;
                         const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.9));
                         zip.file(filename, blob);
                         
-                        // Generate Judul dan Deskripsi dengan Spintax
                         const finalTitle = generateSEOTitle(baseTitle, i);
                         const finalDesc = parseSpintax(mDesc);
                         
@@ -1009,55 +1018,61 @@
                         ].join(",");
                         csvContent += row + "\n";
 
-                        // Update UI Progress
                         const pct = Math.round((currentRender / totalRenders) * 100);
                         els.progressBar.style.width = `${pct}%`;
                         els.progressPercent.innerText = `${pct}%`;
                         
-                        // Jeda agar browser tidak freeze
                         await new Promise(r => setTimeout(r, 100));
                     }
 
-                    // Proses Download ZIP untuk Judul ini
+                    // 2. PROSES PENYIMPANAN KE FOLDER
                     els.progressText.innerText = `MEMBUNGKUS FILE ZIP ${t+1}/${titles.length}...`;
                     zip.file("data_upload_marketplace.csv", csvContent);
                     const content = await zip.generateAsync({type:"blob"});
                     
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(content);
-                    
-                    // Format Nama ZIP (menggunakan nama judul spesifik)
                     const now = new Date();
                     const pad = (n) => String(n).padStart(2, '0');
                     const timestamp = `${pad(now.getDate())}${pad(now.getMonth()+1)}${now.getFullYear()}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
                     
                     let safeTitle = baseTitle.trim().replace(/[^a-zA-Z0-9\s-_]/g, '').replace(/\s+/g, '_');
                     if (!safeTitle) safeTitle = `Produk_${t+1}`;
+                    const fileName = `${safeTitle}_Pack_${timestamp}.zip`;
                     
-                    link.download = `${safeTitle}_Pack_${timestamp}.zip`;
-                    
-                    // PERBAIKAN: Pasang link ke body sebelum di klik agar kompatibel di semua browser
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    // Jeda 1.5 detik antar download ZIP agar browser tidak nge-block multiple downloads
-                    await new Promise(r => setTimeout(r, 1500));
+                    if (dirHandle) {
+                        // Tulis langsung ke folder yang dipilih user
+                        const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(content);
+                        await writable.close();
+                    } else {
+                        // Fallback jika API tidak didukung browser
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(content);
+                        link.download = fileName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        await new Promise(r => setTimeout(r, 1500));
+                    }
                 }
                 
-                els.progressText.innerText = `SELESAI! SEMUA ZIP BERHASIL DIUNDUH.`;
+                els.progressText.innerText = `SELESAI! SEMUA ZIP BERHASIL DISIMPAN.`;
                 await new Promise(r => setTimeout(r, 2000));
 
             } catch (error) {
                 console.error(error);
-                alert("Terjadi kesalahan saat memproses gambar: " + error.message);
+                // Tangkap error jika user membatalkan
+                if(error.message.includes("dibatalkan")) {
+                    alert(error.message);
+                } else {
+                    alert("Terjadi kesalahan saat memproses gambar: " + error.message);
+                }
             } finally {
-                // Pastikan state selalu dikembalikan agar tombol tidak macet jika error
                 state.isProcessing = false;
                 els.progressContainer.classList.add('hidden');
                 els.progressBar.style.width = '0%';
                 
-                // Kembalikan tombol ke kondisi semula
                 els.btnExport.innerHTML = originalBtnHtml;
                 els.btnExport.disabled = false;
                 els.btnExport.classList.remove('opacity-75', 'cursor-not-allowed');
