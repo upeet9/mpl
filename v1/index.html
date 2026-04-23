@@ -683,9 +683,34 @@
             const timestamp = `${pad(now.getDate())}${pad(now.getMonth()+1)}${now.getFullYear()}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
             let safeTitle = mTitle.trim().replace(/[^a-zA-Z0-9\s-_]/g, '').replace(/\s+/g, '_');
             if (!safeTitle) safeTitle = "MpLite_Pack";
+            const defaultFilename = `${safeTitle}_${timestamp}.zip`;
 
-            link.download = `${safeTitle}_${timestamp}.zip`;
-            link.click();
+            try {
+                // 1. Menggunakan File System Access API (Memicu pop-up "Save As" / Pilih Folder)
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: defaultFilename,
+                    types: [{
+                        description: 'ZIP File',
+                        accept: {'application/zip': ['.zip']},
+                    }],
+                });
+                
+                // 2. Tulis file ke lokasi yang dipilih user
+                const writable = await handle.createWritable();
+                await writable.write(content);
+                await writable.close();
+                
+            } catch (err) {
+                // 3. Sistem Fallback (Cadangan)
+                // Jika user menekan "Cancel" pada dialog, abaikan saja (AbortError)
+                // Jika browser belum support API ini (misal: Firefox), gunakan mode download otomatis lama
+                if (err.name !== 'AbortError') {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = defaultFilename;
+                    link.click();
+                }
+            }
 
             state.isProcessing = false;
             els.progressContainer.classList.add('hidden');
